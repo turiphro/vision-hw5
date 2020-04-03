@@ -30,11 +30,13 @@ def train(net, dataloader, optimizer, criterion, epoch):
         total_loss += loss.item()
         if (i + 1) % 2000 == 0:    # print every 2000 mini-batches
             net.log('[%d, %5d] loss: %.3f' %
-                  (epoch + 1, i + 1, running_loss / 2000))
+                    (epoch + 1, i + 1, running_loss / 2000))
             running_loss = 0.0
 
+        net.logFile.flush()
+
     net.log('Final Summary:   loss: %.3f' %
-          (total_loss / i))
+            (total_loss / i))
 
 
 def test(net, dataloader, tag=''):
@@ -79,6 +81,8 @@ def main():
 
     cifarLoader = CifarLoader(args)
     net = args.model()
+    print(net)
+    print(list((p.dtype, p.size()) for p in net.parameters()))
     print('The log is recorded in ')
     print(net.logFile.name)
 
