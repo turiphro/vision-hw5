@@ -29,6 +29,7 @@ class BaseModel(nn.Module):
 
     def adjust_learning_rate(self, optimizer, epoch, args):
         lr = args.lr  # TODO: Implement decreasing learning rate's rules
+
         for param_group in optimizer.param_groups:
             param_group['lr'] = lr
 
@@ -53,7 +54,10 @@ class LazyNet(BaseModel):
 
 
 class BoringNet(BaseModel):
-    # Training on turiphro's laptop: 49% acc, 0h47m
+    # Training on turiphro, cpu,  batch=4:  49% acc, 0h47m
+    # Training on turiphro, cpu,  batch=64: 45% acc, 0h15m
+    # Training on turiphro, cuda, batch=4:  48% acc, 0h40m
+    # Training on turiphro, cuda, batch=64: 51% acc, 0h11m
     def __init__(self):
         super(BoringNet, self).__init__()
         self.fc1 = nn.Linear(32 * 32 * 3, 120)
@@ -111,8 +115,11 @@ class CoolNet(BaseModel):
 
 
 class SuperCoolNet(BaseModel):
+    # Training on turiphro, cpu,  batch=64: 80% acc, 7h00m
+    # Training on turiphro, cuda, batch=64: 79% acc, 2h21m
+
     def __init__(self):
-        super(CoolNet, self).__init__()
+        super(SuperCoolNet, self).__init__()
 
         # based on VGG (first 5 blocks)
         self.block1 = nn.Sequential(

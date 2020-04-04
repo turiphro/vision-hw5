@@ -20,5 +20,6 @@ def argParser():
 	parser.add_argument('--batchSize', default=4, type=int)
 	parser.add_argument('--epochs', default=1, type=int)
 	parser.add_argument('--model', type=model_class)
+	parser.add_argument('--device', default='cpu') # cpu, cuda, cuda:1
 	return parser.parse_args()
 

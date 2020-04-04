@@ -7,7 +7,7 @@ import torch
 import pdb
 
 
-def train(net, dataloader, optimizer, criterion, epoch):
+def train(net, dataloader, optimizer, criterion, epoch, device):
 
     running_loss = 0.0
     total_loss = 0.0
@@ -15,13 +15,15 @@ def train(net, dataloader, optimizer, criterion, epoch):
     for i, data in enumerate(dataloader.trainloader, 0):
         # get the inputs
         inputs, labels = data
+        inputs = inputs.to(device)
+        labels = labels.to(device)
 
         # zero the parameter gradients
         optimizer.zero_grad()
 
         # forward + backward + optimize
-        outputs = net(inputs)
-        loss = criterion(outputs, labels)
+        outputs = net(inputs).to(device)
+        loss = criterion(outputs, labels).to(device)
         loss.backward()
         optimizer.step()
 
@@ -39,7 +41,7 @@ def train(net, dataloader, optimizer, criterion, epoch):
             (total_loss / i))
 
 
-def test(net, dataloader, tag=''):
+def test(net, dataloader, device, tag=''):
     correct = 0
     total = 0
     if tag == 'Train':
@@ -49,19 +51,23 @@ def test(net, dataloader, tag=''):
     with torch.no_grad():
         for data in dataTestLoader:
             images, labels = data
+            images = images.to(device)
+            labels = labels.to(device)
             outputs = net(images)
             _, predicted = torch.max(outputs.data, 1)
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
 
     net.log('%s Accuracy of the network: %d %%' % (tag,
-        100 * correct / total))
+            100 * correct / total))
 
     class_correct = list(0. for i in range(10))
     class_total = list(0. for i in range(10))
     with torch.no_grad():
         for data in dataTestLoader:
             images, labels = data
+            images = images.to(device)
+            labels = labels.to(device)
             outputs = net(images)
             _, predicted = torch.max(outputs, 1)
             c = (predicted == labels).squeeze()
@@ -70,18 +76,20 @@ def test(net, dataloader, tag=''):
                 class_correct[label] += c[i].item()
                 class_total[label] += 1
 
-
     for i in range(10):
         net.log('%s Accuracy of %5s : %2d %%' % (
             tag, dataloader.classes[i], 100 * class_correct[i] / class_total[i]))
+
 
 def main():
 
     args = argParser()
 
     cifarLoader = CifarLoader(args)
-    net = args.model()
+    device = torch.device(args.device)
+    net = args.model().to(device)
     print(net)
+    print("on device:", device)
     print(list((p.dtype, p.size()) for p in net.parameters()))
     print('The log is recorded in ')
     print(net.logFile.name)
@@ -91,10 +99,10 @@ def main():
 
     for epoch in range(args.epochs):  # loop over the dataset multiple times
         net.adjust_learning_rate(optimizer, epoch, args)
-        train(net, cifarLoader, optimizer, criterion, epoch)
+        train(net, cifarLoader, optimizer, criterion, epoch, device)
         if epoch % 1 == 0: # Comment out this part if you want a faster training
-            test(net, cifarLoader, 'Train')
-            test(net, cifarLoader, 'Test')
+            test(net, cifarLoader, device, 'Train')
+            test(net, cifarLoader, device, 'Test')
 
 
     print('The log is recorded in ')
