@@ -24,11 +24,16 @@ class BaseModel(nn.Module):
     def criterion(self):
         return nn.CrossEntropyLoss()
 
-    def optimizer(self):
-        return optim.SGD(self.parameters(), lr=0.001)
+    def optimizer(self, lr):
+        return optim.SGD(self.parameters(),
+                         lr=lr,
+                         momentum=0.9, weight_decay=5e-4)
 
     def adjust_learning_rate(self, optimizer, epoch, args):
-        lr = args.lr  # TODO: Implement decreasing learning rate's rules
+        lr = args.lr * (0.5 ** (epoch // 30))
+
+        if epoch % 30 == 0:
+            print("Learning rate is now", lr)
 
         for param_group in optimizer.param_groups:
             param_group['lr'] = lr
@@ -74,7 +79,6 @@ class BoringNet(BaseModel):
 
 class CoolNet(BaseModel):
     # Training on turiphro's laptop, chan=[32,64], batch=64: 70% acc, 2h37m
-    # Training on turiphro's laptop, chan=[64,128], batch=64: xx% acc, xxhxxm
     # Training on turiphro's laptop, chan=[64,128], batch=16: 74% acc, 10h16m
     def __init__(self, channels=[64, 128]):
         super(CoolNet, self).__init__()
@@ -121,7 +125,7 @@ class SuperCoolNet(BaseModel):
     def __init__(self):
         super(SuperCoolNet, self).__init__()
 
-        # based on VGG (first 5 blocks)
+        # based on VGG11 (first 5 blocks)
         self.block1 = nn.Sequential(
             nn.Conv2d(3, 64, kernel_size=3, padding=1),
             nn.BatchNorm2d(64),

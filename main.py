@@ -88,6 +88,7 @@ def main():
     cifarLoader = CifarLoader(args)
     device = torch.device(args.device)
     net = args.model().to(device)
+
     print(net)
     print("on device:", device)
     print(list((p.dtype, p.size()) for p in net.parameters()))
@@ -95,7 +96,7 @@ def main():
     print(net.logFile.name)
 
     criterion = net.criterion()
-    optimizer = net.optimizer()
+    optimizer = net.optimizer(lr=args.lr)
 
     for epoch in range(args.epochs):  # loop over the dataset multiple times
         net.adjust_learning_rate(optimizer, epoch, args)
