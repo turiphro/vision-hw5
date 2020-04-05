@@ -3,20 +3,26 @@ import torchvision
 import torchvision.transforms as transforms
 
 
+MEAN = (0.4914, 0.4822, 0.4465)
+STD = (0.247, 0.243, 0.261)
+
+
 class CifarLoader(object):
 	"""docstring for CifarLoader"""
 	def __init__(self, args):
 		super(CifarLoader, self).__init__()
 		transform = transforms.Compose(
 		    [
-		     # TODO: Add data augmentations here
+		     transforms.RandomHorizontalFlip(),
+		     transforms.RandomCrop(32, padding=4),
+		     transforms.RandomRotation(5, expand=False),
 		     transforms.ToTensor(),
-		     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+		     transforms.Normalize(mean=MEAN, std=STD)
 		     ])
 
 		transform_test = transforms.Compose([
 		    transforms.ToTensor(),
-		    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)), 
+		    transforms.Normalize(mean=MEAN, std=STD)
 		])
 
 		trainset = torchvision.datasets.CIFAR10(root='./data', train=True,

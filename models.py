@@ -121,6 +121,9 @@ class CoolNet(BaseModel):
 class SuperCoolNet(BaseModel):
     # Training on turiphro, cpu,  batch=64: 80% acc, 7h00m
     # Training on turiphro, cuda, batch=64: 79% acc, 2h21m
+    # Training on turiphro, cuda, batch=64,
+    #   epochs=100, dampening lr, momentum: 82% acc, 4h51m
+    #   + data augment, epochs=200:         88% acc, 9h26m
 
     def __init__(self):
         super(SuperCoolNet, self).__init__()
